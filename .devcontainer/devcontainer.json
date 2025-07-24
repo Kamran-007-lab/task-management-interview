@@ -56,10 +56,7 @@
 	},
 
 	// Set up the environment after container creation
-	"postCreateCommand": "bash -c 'cp env.example .env && yarn install && echo \"🚀 Setup complete! Run: docker-compose up -d && yarn dev\"'",
-
-	// Keep container running
-	"postStartCommand": "docker-compose up -d",
+	"postCreateCommand": "bash -c 'cp env.example .env && yarn install && echo \"🚀 Setup complete! Use Gitpod automations to start services.\"'",
 
 	// Environment variables
 	"containerEnv": {

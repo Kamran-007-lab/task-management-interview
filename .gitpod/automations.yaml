@@ -1,0 +1,69 @@
+tasks:
+  hello:
+    name: Hello World
+    command: |
+      echo "Hello, World!"
+    triggeredBy:
+      - manual
+    # - postEnvironmentStart
+    # - postDevcontainerStart
+
+services:
+  serviceReference:
+    name: Task Management
+    description: Full application stack with Docker services and development server
+    commands:
+      start: |
+        echo "🚀 Starting Task Management application..."
+
+        # Start Docker Compose services
+        echo "Starting Docker services..."
+        docker-compose up -d
+
+        # Wait for services to be ready
+        echo "Waiting for services to initialize..."
+        sleep 5
+
+        # Start the development server
+        echo "Starting development server..."
+        yarn dev &
+
+        # Store the yarn dev PID
+        echo $! > /tmp/yarn-dev.pid
+
+        # Mark as started
+        touch /tmp/app.started
+        echo "✅ Application started successfully!"
+
+        # Keep the service running
+        wait
+      ready: |
+        if [ -f /tmp/app.started ]; then
+            echo "Application is ready"
+            exit 0
+        else
+            echo "Application is not ready"
+            exit 1
+        fi
+      stop: |
+        echo "🛑 Stopping Task Management application..."
+
+        # Kill yarn dev process
+        if [ -f /tmp/yarn-dev.pid ]; then
+            kill $(cat /tmp/yarn-dev.pid) 2>/dev/null || true
+            rm -f /tmp/yarn-dev.pid
+        fi
+
+        # Stop Docker Compose services
+        docker-compose down
+
+        # Clean up
+        rm -f /tmp/app.started
+
+        # Kill any remaining node processes
+        pkill -f "yarn dev" 2>/dev/null || true
+        pkill -f "node.*dev" 2>/dev/null || true
+
+        echo "✅ Application stopped"
+    triggeredBy:
+      - postEnvironmentStart
