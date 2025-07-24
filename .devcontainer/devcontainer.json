@@ -1,0 +1,76 @@
+// The Dev Container format allows you to configure your environment. At the heart of it
+// is a Docker image or Dockerfile which controls the tools available in your environment.
+//
+// See https://aka.ms/devcontainer.json for more information.
+{
+	"name": "Task Management System",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+	"workspaceFolder": "/workspaces/task-management-interview",
+
+	// Features add additional features to your environment
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker": {
+			"moby": false,
+			"dockerDashComposeVersion": "v2"
+		}
+	},
+
+	// Forward ports for the application and services
+	"forwardPorts": [3000, 5432, 6379],
+	"portsAttributes": {
+		"3000": {
+			"label": "Application",
+			"onAutoForward": "notify"
+		},
+		"5432": {
+			"label": "PostgreSQL",
+			"onAutoForward": "silent"
+		},
+		"6379": {
+			"label": "Redis",
+			"onAutoForward": "silent"
+		}
+	},
+
+	// VS Code extensions
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.vscode-json",
+				"ms-vscode.vscode-typescript-next",
+				"esbenp.prettier-vscode",
+				"ms-vscode.vscode-eslint",
+				"ms-vscode-remote.remote-containers",
+				"ms-azuretools.vscode-docker",
+				"ckolkman.vscode-postgres",
+				"bradlc.vscode-tailwindcss",
+				"humao.rest-client",
+				"ms-vscode.vscode-thunder-client"
+			],
+			"settings": {
+				"editor.formatOnSave": true,
+				"editor.defaultFormatter": "esbenp.prettier-vscode",
+				"terminal.integrated.defaultProfile.linux": "zsh"
+			}
+		}
+	},
+
+	// Set up the environment after container creation
+	"postCreateCommand": "bash -c 'cp env.example .env && yarn install && echo \"🚀 Setup complete! Run: docker-compose up -d && yarn dev\"'",
+
+	// Keep container running
+	"postStartCommand": "docker-compose up -d",
+
+	// Environment variables
+	"containerEnv": {
+		"NODE_ENV": "development"
+	},
+
+	// Mount the Docker socket and workspace
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
+
+	// Use 'root' for permissions with Docker
+	"remoteUser": "root"
+}
